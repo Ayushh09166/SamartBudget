@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartSave – Saving Predictor</title>
+    <meta name="description" content="Calculate how long it takes to reach your financial goal based on your monthly income, expenses, and savings." />
+    <meta property="og:title" content="SmartSave – Saving Predictor" />
+    <meta property="og:description" content="Calculate how long it takes to reach your financial goal based on your monthly income, expenses, and savings." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="header-wrapper">
+      <div class="header-container">
+        <a href="index.html" class="brand-block" title="SmartSave Home">
+          <span class="brand-title">SmartSave</span>
+          <span class="brand-subtitle">Saving &amp; Target Planner</span>
+        </a>
+
+        <nav class="nav-links" aria-label="Main Navigation">
+          <a href="index.html" class="nav-item active">Predictor</a>
+          <a href="analytics.html" class="nav-item">Analytics</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-wrapper">
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <h1 class="hero-title">Plan your savings. Reach your target.</h1>
+        <p class="hero-description">
+          Calculate how long it takes to reach your financial goal based on your monthly income, expenses, and savings.
+        </p>
+      </section>
+
+      <!-- Calculator Grid (Input Card + Prediction Card) -->
+      <section class="calculator-grid">
+        <!-- Input Card -->
+        <div class="card-box">
+          <div class="card-heading">
+            <span>Saving Parameters</span>
+            <span class="card-heading-actions">Input Details</span>
+          </div>
+
+          <!-- Presets -->
+          <div class="presets-row">
+            <span class="presets-label">Quick Presets:</span>
+            <button type="button" class="preset-btn" id="presetStandard">Standard (₹30k / ₹1L)</button>
+            <button type="button" class="preset-btn" id="presetStarter">Starter Goal (₹15k / ₹50k)</button>
+            <button type="button" class="preset-btn" id="presetClear">Clear</button>
+          </div>
+
+          <!-- Error Alert Banner -->
+          <div id="alertBanner" class="alert-banner" role="alert"></div>
+
+          <!-- Form -->
+          <form id="predictorForm" novalidate>
+            <!-- 1. Monthly Income -->
+            <div class="form-group">
+              <label for="incomeInput" class="form-label">Monthly Income</label>
+              <div class="input-symbol-wrap">
+                <span class="currency-symbol">₹</span>
+                <input
+                  type="number"
+                  id="incomeInput"
+                  name="income"
+                  class="text-input"
+                  placeholder="30000"
+                  min="1"
+                  step="any"
+                  required
+                />
+              </div>
+              <small class="form-hint">Example: ₹30,000 (total monthly earnings or salary)</small>
+            </div>
+
+            <!-- 2. Monthly Expenses -->
+            <div class="form-group">
+              <label for="expensesInput" class="form-label">Monthly Expenses</label>
+              <div class="input-symbol-wrap">
+                <span class="currency-symbol">₹</span>
+                <input
+                  type="number"
+                  id="expensesInput"
+                  name="expenses"
+                  class="text-input"
+                  placeholder="20000"
+                  min="0"
+                  step="any"
+                  required
+                />
+              </div>
+              <small class="form-hint">Example: ₹20,000 (rent, utilities, and living costs)</small>
+            </div>
+
+            <!-- 3. Current Savings -->
+            <div class="form-group">
+              <label for="currentSavingsInput" class="form-label">Current Savings</label>
+              <div class="input-symbol-wrap">
+                <span class="currency-symbol">₹</span>
+                <input
+                  type="number"
+                  id="currentSavingsInput"
+                  name="currentSavings"
+                  class="text-input"
+                  placeholder="10000"
+                  min="0"
+                  step="any"
+                  required
+                />
+              </div>
+              <small class="form-hint">Example: ₹10,000 (liquid funds currently in hand)</small>
+            </div>
+
+            <!-- 4. Target Savings -->
+            <div class="form-group">
+              <label for="targetSavingsInput" class="form-label">Target Savings</label>
+              <div class="input-symbol-wrap">
+                <span class="currency-symbol">₹</span>
+                <input
+                  type="number"
+                  id="targetSavingsInput"
+                  name="targetSavings"
+                  class="text-input"
+                  placeholder="100000"
+                  min="1"
+                  step="any"
+                  required
+                />
+              </div>
+              <small class="form-hint">Example: ₹1,00,000 (your financial target)</small>
+            </div>
+
+            <button type="submit" id="predictBtn" class="btn-primary">
+              Predict My Savings
+            </button>
+          </form>
+        </div>
+
+        <!-- Prediction Result Card -->
+        <div class="card-box result-card" id="resultCard">
+          <div>
+            <div class="card-heading">
+              <span>Prediction Result</span>
+              <span class="card-heading-actions">Target Forecast</span>
+            </div>
+
+            <div id="resultKicker" class="result-kicker">Your target can be reached in</div>
+            <div id="resultHeroNumber" class="result-hero-number">9 MONTHS</div>
+
+            <!-- Special state message container (Deficit / 0 saving / Reached) -->
+            <div id="specialStateCard" class="special-state-card" style="display: none;"></div>
+
+            <!-- Normal Output Details -->
+            <div id="normalResultContainer">
+              <div class="result-breakdown">
+                <div class="breakdown-item">
+                  <span class="breakdown-label">Monthly Saving</span>
+                  <span id="monthlySavingVal" class="breakdown-value">₹10,000</span>
+                </div>
+                <div class="breakdown-item">
+                  <span class="breakdown-label">Remaining Target</span>
+                  <span id="remainingVal" class="breakdown-value">₹90,000</span>
+                </div>
+                <div class="breakdown-item">
+                  <span class="breakdown-label">Saving Rate</span>
+                  <span id="savingRateVal" class="breakdown-value">33.3%</span>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="progress-block">
+                <div class="progress-header">
+                  <span id="progressLabel" class="progress-header-label">Current Savings → Target Savings</span>
+                  <span id="progressValues" class="progress-header-values">₹10,000 / ₹1,00,000</span>
+                </div>
+                <div class="progress-track">
+                  <div id="progressBarFill" class="progress-fill" style="width: 10%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-card-actions">
+            <a href="analytics.html" class="btn-secondary">
+              View Detailed Analytics →
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Smart Saving Plan (Shown only when target requires more than 4 months) -->
+      <section id="smartSavingPlanSection" class="smart-plan-section" style="display: none;">
+        <div class="smart-plan-header">
+          <div>
+            <h2 class="smart-plan-title">Monthly Allocation Plan</h2>
+            <p class="smart-plan-subtitle">A structured way to divide your monthly surplus based on your timeline.</p>
+          </div>
+          <span id="planNameTag" class="smart-plan-tag">Dynamic Allocation</span>
+        </div>
+
+        <!-- Financial Context Metrics Strip -->
+        <div class="smart-plan-metrics-strip">
+          <div class="plan-metric-item">
+            <span class="plan-metric-label">Monthly Saving</span>
+            <span id="planMetricMonthlySaving" class="plan-metric-val">₹10,000</span>
+          </div>
+          <div class="plan-metric-item">
+            <span class="plan-metric-label">Saving Rate</span>
+            <span id="planMetricSavingRate" class="plan-metric-val">33.3%</span>
+          </div>
+          <div class="plan-metric-item">
+            <span class="plan-metric-label">Emergency Reserve</span>
+            <span id="planMetricEmergency" class="plan-metric-val">₹10,000 / ₹60,000</span>
+          </div>
+          <div class="plan-metric-item">
+            <span class="plan-metric-label">Target Timeline</span>
+            <span id="planMetricTimeline" class="plan-metric-val">9 months</span>
+          </div>
+        </div>
+
+        <!-- 3 Allocation Cards -->
+        <div class="smart-plan-cards-grid">
+          <div class="allocation-card">
+            <span class="allocation-label">Emergency Fund / Liquid Savings</span>
+            <span id="savingsPctVal" class="allocation-pct">55%</span>
+            <span id="savingsAmtVal" class="allocation-amount">₹5,500/month</span>
+          </div>
+
+          <div class="allocation-card">
+            <span class="allocation-label">Gold</span>
+            <span id="goldPctVal" class="allocation-pct">15%</span>
+            <span id="goldAmtVal" class="allocation-amount">₹1,500/month</span>
+          </div>
+
+          <div class="allocation-card">
+            <span class="allocation-label">SIP / Long-term</span>
+            <span id="sipPctVal" class="allocation-pct">30%</span>
+            <span id="sipAmtVal" class="allocation-amount">₹3,000/month</span>
+          </div>
+        </div>
+
+        <!-- Allocation Segment Bar -->
+        <div class="allocation-bar-wrap">
+          <div class="allocation-bar">
+            <div id="barSegmentSavings" class="allocation-bar-segment bar-segment-savings" style="width: 55%;"></div>
+            <div id="barSegmentGold" class="allocation-bar-segment bar-segment-gold" style="width: 15%;"></div>
+            <div id="barSegmentSip" class="allocation-bar-segment bar-segment-sip" style="width: 30%;"></div>
+          </div>
+          <div class="allocation-legend">
+            <div class="legend-item">
+              <span class="legend-dot" style="background-color: #111111;"></span>
+              <span>Liquid Savings</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot" style="background-color: #666666;"></span>
+              <span>Gold</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot" style="background-color: #aaaaaa;"></span>
+              <span>SIP</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy Note Section -->
+        <div class="smart-plan-why-box">
+          <div class="smart-plan-why-heading">Allocation Strategy</div>
+          <p id="smartPlanMessage" class="smart-plan-why-desc">
+            Your emergency fund is still below the suggested 3-month expense reserve, so priority is given to liquid savings.
+          </p>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="smart-plan-disclaimer">
+          Illustrative model. Past performance does not guarantee future results. Not financial advice.
+        </div>
+      </section>
+
+      <!-- Calculation Methodology -->
+      <section class="education-section">
+        <h2 class="education-heading">Calculation Methodology</h2>
+        <p class="education-sub">
+          SmartSave evaluates timeline projections using straightforward surplus and target differentials.
+        </p>
+
+        <div class="formula-grid">
+          <div class="formula-card">
+            <div class="formula-step">Step 1 · Monthly Surplus</div>
+            <div class="formula-expression">Monthly Saving = Income − Expenses</div>
+            <p class="formula-note">
+              Subtract routine living expenses from total monthly income to determine net disposable surplus.
+            </p>
+          </div>
+
+          <div class="formula-card">
+            <div class="formula-step">Step 2 · Target Gap</div>
+            <div class="formula-expression">Remaining Target = Target − Current Savings</div>
+            <p class="formula-note">
+              Deduct liquid funds already secured to pinpoint the exact capital required.
+            </p>
+          </div>
+
+          <div class="formula-card">
+            <div class="formula-step">Step 3 · Projected Timeline</div>
+            <div class="formula-expression">Estimated Months = Remaining ÷ Monthly Saving</div>
+            <p class="formula-note">
+              Divide the remaining target by your monthly surplus to calculate the timeline to completion.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-wrap">
+      <div class="footer-container">
+        <div class="footer-credits">
+          <strong>SmartSave</strong>
+          <span>·</span>
+          <span>Saving &amp; Target Planner</span>
+        </div>
+        <div>
+          <span>Designed for privacy · Runs entirely in your browser</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

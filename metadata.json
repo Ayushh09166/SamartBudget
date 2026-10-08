@@ -1,0 +1,6 @@
+{
+  "name": "SmartSave – Saving Predictor",
+  "description": "A clean, minimalist personal finance planning tool to calculate and visualize saving goals and monthly allocations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
